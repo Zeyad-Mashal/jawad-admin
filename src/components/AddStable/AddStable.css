@@ -88,7 +88,14 @@ tr:hover {
 .table_wrapper table {
   min-width: 600px;
 }
-
+.stable_content_flex {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 @media screen and (max-width: 600px) {
   .stable_content {
     width: 95%;

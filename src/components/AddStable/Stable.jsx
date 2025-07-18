@@ -1,6 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./AddStable.css";
+import AddStable from "../../API/AddStable/AddStable";
+import GetStable from "../../API/AddStable/GetStable";
 const Stable = () => {
+  useEffect(() => {
+    getAllStables();
+  }, []);
+  const [loading, setloading] = useState(false);
+  const [error, setError] = useState(null);
+  const [arName, setArName] = useState("");
+  const [enName, setEnName] = useState("");
+  const [arType, setArType] = useState("");
+  const [enType, setEnType] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [allStables, setAllStables] = useState([]);
+  const addStableApi = () => {
+    const data = {
+      arName,
+      enName,
+      arType,
+      enType,
+      email,
+      password,
+      phone,
+    };
+    console.log(data);
+
+    AddStable(setloading, setError, data);
+  };
+  const getAllStables = () => {
+    GetStable(setloading, setError, setAllStables);
+  };
   return (
     <div className="stable">
       <div className="stable_container">
@@ -9,36 +41,79 @@ const Stable = () => {
           <p>Fill in the details below to add a new stable.</p>
         </div>
         <div className="stable_content">
-          <input type="text" placeholder="Name" />
-          <input type="text" placeholder="Email" />
-          <input type="text" placeholder="Password" />
-          <button>Add New Stable</button>
+          <div className="stable_content_flex">
+            <input
+              type="text"
+              placeholder="الاسم بالعربي"
+              value={arName}
+              onChange={(e) => setArName(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Name"
+              value={enName}
+              onChange={(e) => setEnName(e.target.value)}
+            />
+          </div>
+          <div className="stable_content_flex">
+            <input
+              type="text"
+              placeholder="النوع"
+              value={arType}
+              onChange={(e) => setArType(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Type"
+              value={enType}
+              onChange={(e) => setEnType(e.target.value)}
+            />
+          </div>
+          <div className="stable_content_flex">
+            <input
+              type="text"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <input
+            type="text"
+            placeholder="phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          <button onClick={addStableApi}>
+            {loading ? "loading ..." : "Add New Stable"}
+          </button>
         </div>
         <div className="table_wrapper">
           <table>
             <thead>
               <tr>
-                <th>Name</th>
+                <th>Arabic Name</th>
+                <th>English Name</th>
+                <th>Phone</th>
                 <th>Email</th>
-                <th>Password</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td data-label="Name">John</td>
-                <td data-label="Email">john@example.com</td>
-                <td data-label="Password">12345</td>
-              </tr>
-              <tr>
-                <td data-label="Name">Aisha</td>
-                <td data-label="Email">aisha@example.com</td>
-                <td data-label="Password">abc123</td>
-              </tr>
-              <tr>
-                <td data-label="Name">Hiroshi</td>
-                <td data-label="Email">hiroshi@example.com</td>
-                <td data-label="Password">pass789</td>
-              </tr>
+              {allStables.map((item, index) => {
+                return (
+                  <tr key={index}>
+                    <td>{item.name.ar}</td>
+                    <td>{item.name.en}</td>
+                    <td>{item.phone}</td>
+                    <td>{item.email}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
