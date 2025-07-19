@@ -11,16 +11,15 @@ import Navbar from "./components/Navbar/Navbar";
 import PhotoGrapher from "./components/AddPhotoGrapher/PhotoGrapher";
 
 function AppContent() {
-  const location = useLocation();
-  const hideNavbar = location.pathname === "/";
+  const token = localStorage.getItem("jawadToken");
 
   return (
     <>
-      {!hideNavbar && <Navbar />}
+      <Navbar />
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/stable" element={<Stable />} />
-        <Route path="/photo" element={<PhotoGrapher />} />
+        <Route path="/" element={token ? <Stable /> : <Login />} />
+        <Route path="/stable" element={token ? <Stable /> : <Login />} />
+        <Route path="/photo" element={token ? <PhotoGrapher /> : <Login />} />
       </Routes>
     </>
   );

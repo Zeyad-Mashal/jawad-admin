@@ -55,17 +55,17 @@
 table {
   border-collapse: collapse;
   width: 100%;
-  max-width: 600px;
+  max-width: 1000px;
   margin: auto;
   background-color: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 th,
 td {
   padding: 12px 20px;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid #ddd;
 }
 
@@ -77,6 +77,12 @@ th {
 tr:hover {
   background-color: #f1f1f1;
 }
+tr,
+td {
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+}
 
 .table_wrapper {
   width: 100%;
@@ -86,7 +92,7 @@ tr:hover {
 }
 
 .table_wrapper table {
-  min-width: 600px;
+  min-width: 1000px;
 }
 .stable_content_flex {
   width: 100%;
@@ -96,6 +102,125 @@ tr:hover {
   flex-wrap: wrap;
   gap: 10px;
 }
+.settings_popup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top: 40%;
+  z-index: 9999999;
+}
+.settings_popup.completed {
+  top: 0%;
+  min-height: 80vh;
+  max-height: 100%;
+  height: auto;
+  overflow-y: auto;
+  padding-top: 2rem;
+}
+.settings_popup .settings_flex {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.settings_popup .settings_flex button {
+  background-color: #fff;
+  border: 1px solid #000;
+  padding: 8px 10px;
+  border-radius: 16px;
+  margin: 1rem 0;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.settings_popup .settings_flex button:first-of-type:hover {
+  background-color: rgb(0, 0, 152);
+  color: #fff;
+}
+.settings_popup .settings_flex button:last-of-type:hover {
+  background-color: rgb(152, 0, 0);
+  color: #fff;
+}
+.settings_popup .settings_flex button:nth-of-type(2):hover {
+  background-color: rgb(16, 139, 0);
+  color: #fff;
+}
+.settings_wrapper {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+  position: fixed;
+  top: 0;
+}
+.completed {
+  color: rgb(16, 139, 0);
+}
+.notcompleted {
+  background-color: rgb(152, 0, 0);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+.update_form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+  width: 600px;
+}
+.update_form input {
+  width: 100%;
+}
+.completed_flex {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+.completed_flex input {
+  padding: 10px;
+  border-radius: 10px;
+  border: #007bff 1px solid;
+  outline: none;
+}
+.update_form button {
+  background-color: #000;
+  color: #fff;
+  padding: 10px 20px;
+  width: 150px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+.preview_image_wrapper {
+  margin-top: 10px;
+}
+
+.preview_image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
 @media screen and (max-width: 600px) {
   .stable_content {
     width: 95%;

@@ -1,24 +1,25 @@
-const URL = "https://jawad-gbvq.onrender.com/api/v1/stable/add";
+const URL = "https://jawad-gbvq.onrender.com/api/v1/stable/delete/";
 
-const AddStable = async (setloading, setError, data, getAllStables) => {
+const DeleteStable = async (setloading, setError, DeleteStableId, setDeleteModel, getAllStables) => {
     setloading(true)
     const lang = localStorage.getItem("lang") || "ar"
     const token = localStorage.getItem("jawadToken")
+
     try {
-        const response = await fetch(URL, {
-            method: 'POST',
+        const response = await fetch(`${URL}${DeleteStableId}`, {
+            method: 'DELETE',
             headers: {
                 "Content-Type": "application/json",
                 "accept-language": `${lang}`,
                 "authorization": `jawJQ${token}`
             },
-            body: JSON.stringify(data),
         });
 
         const result = await response.json();
 
         if (response.ok) {
             setloading(false);
+            setDeleteModel(false)
             getAllStables()
         } else {
             if (response.status == 401) {
@@ -26,7 +27,7 @@ const AddStable = async (setloading, setError, data, getAllStables) => {
                 setloading(false);
                 console.log(result.message);
 
-            } else if (response.status == 400) {
+            } else if (response.status == 413) {
                 setError(result.message)
                 setloading(false);
                 console.log(result.message);
@@ -40,6 +41,8 @@ const AddStable = async (setloading, setError, data, getAllStables) => {
     } catch (error) {
         setError('An error occurred');
         setloading(false)
+        console.log(error);
+
     }
 }
-export default AddStable;
+export default DeleteStable;

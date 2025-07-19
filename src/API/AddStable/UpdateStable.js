@@ -1,24 +1,24 @@
-const URL = "https://jawad-gbvq.onrender.com/api/v1/stable/add";
+const URL = "https://jawad-gbvq.onrender.com/api/v1/stable/update/";
 
-const AddStable = async (setloading, setError, data, getAllStables) => {
+const UpdateStable = async (setloading, setError, data, editingStableId, setEditModel, getAllStables) => {
     setloading(true)
     const lang = localStorage.getItem("lang") || "ar"
     const token = localStorage.getItem("jawadToken")
     try {
-        const response = await fetch(URL, {
-            method: 'POST',
+        const response = await fetch(`${URL}${editingStableId}`, {
+            method: 'PUT',
             headers: {
-                "Content-Type": "application/json",
                 "accept-language": `${lang}`,
                 "authorization": `jawJQ${token}`
             },
-            body: JSON.stringify(data),
+            body: data,
         });
 
         const result = await response.json();
 
         if (response.ok) {
             setloading(false);
+            setEditModel(false)
             getAllStables()
         } else {
             if (response.status == 401) {
@@ -40,6 +40,8 @@ const AddStable = async (setloading, setError, data, getAllStables) => {
     } catch (error) {
         setError('An error occurred');
         setloading(false)
+        console.log(error);
+
     }
 }
-export default AddStable;
+export default UpdateStable;
