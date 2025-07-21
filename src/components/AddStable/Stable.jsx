@@ -5,6 +5,7 @@ import GetStable from "../../API/AddStable/GetStable";
 import CompleteStable from "../../API/AddStable/CompleteStable";
 import UpdateStable from "../../API/AddStable/UpdateStable";
 import DeleteStable from "../../API/AddStable/DeleteStable";
+import { Link } from "react-router-dom";
 const Stable = () => {
   useEffect(() => {
     getAllStables();
@@ -37,6 +38,7 @@ const Stable = () => {
   const [editingStableId, setEditingStableId] = useState(null);
   const [DeleteStableId, setDeleteStableId] = useState(null);
   const [deleteModel, setDeleteModel] = useState("");
+  const [stableId, setStableId] = useState(null);
   const addStableApi = () => {
     const data = {
       arName,
@@ -223,6 +225,7 @@ const Stable = () => {
                       onClick={() => {
                         setModel(true);
                         setSelectedStable(item);
+                        setStableId(item._id);
                       }}
                     >
                       ⚙️
@@ -242,7 +245,9 @@ const Stable = () => {
             <div className="settings_popup">
               <h3>Stable Settings</h3>
               <div className="settings_flex">
-                <button>add horse</button>
+                <button>
+                  <Link to={`/add-horse?stableId=${stableId}`}>add horse</Link>
+                </button>
                 <button
                   onClick={() => {
                     if (selectedStable) {
