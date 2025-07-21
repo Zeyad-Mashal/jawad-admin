@@ -16,7 +16,8 @@ const Navbar = () => {
 
         <div className={`navbar_links ${isOpen ? "open" : ""}`}>
           <Link to="/stable">stable</Link>
-          <Link to="/photo">PhotoGrapher</Link>
+          <Link to="/photo">Photographer</Link>
+          <Link to="/school">School</Link>
         </div>
 
         <button className="menu_icon" onClick={() => setIsOpen(!isOpen)}>
