@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import GetSchool from "../../API/School/GetSchool";
-import "./School.css"; // تأكد إن فيه CSS للمودال
+import "./school.css"; // تأكد إن فيه CSS للمودال
 import AddSchool from "../../API/School/AddSchool";
 const School = () => {
   const [loading, setloading] = useState(false);
