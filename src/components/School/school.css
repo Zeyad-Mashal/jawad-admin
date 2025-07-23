@@ -16,11 +16,34 @@
   background-color: #fff;
   border-radius: 12px;
   padding: 20px;
-  max-width: 400px;
+  max-width: 800px;
   width: 100%;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  z-index: 999999;
+}
+.modal-content textarea {
+  padding: 10px;
+  height: 120px;
+  width: 100%;
+  resize: vertical;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
 }
 
+.stable_content_flex {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.modal-content .stable_content_flex input {
+  width: 49%;
+  padding: 10px;
+}
 .modal-content h2 {
   margin-bottom: 15px;
   font-size: 20px;
@@ -39,7 +62,8 @@
   font-size: 16px;
 }
 
-.close-prices-btn {
+.close-prices-btn,
+.submit-completion-btn {
   width: 100%;
   padding: 10px;
   background-color: #ff4d4f;
@@ -53,6 +77,71 @@
 .close-prices-btn:hover {
   background-color: #e84141;
 }
+.submit-completion-btn {
+  background-color: rgb(1, 157, 1);
+}
 .school_image {
   width: 120px;
+}
+.add_prices {
+  width: 100px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: rgb(0, 0, 188);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+.modal-content.settings,
+.modal-content.delete {
+  position: fixed;
+  top: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 400px;
+}
+.modal-content.settings .settings_btns {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+.modal-content.settings .settings_btns button {
+  width: 150px;
+  background-color: #eee;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: 0.3s ease;
+  font-weight: bold;
+}
+.modal-content.settings .settings_btns button:hover {
+  background-color: #ddd;
+  box-shadow: 1px 4px 10px rgba(0, 0, 0, 0.3);
+}
+.delete_btns {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+.delete_btns button {
+  width: 150px;
+  background-color: #ff4d4f;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: 0.3s ease;
+  color: #fff;
+}
+.delete_btns button:first-of-type {
+  background-color: #eee;
+  color: #000;
 }
