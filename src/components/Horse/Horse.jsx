@@ -315,8 +315,11 @@ const Horse = () => {
                   onChange={(e) => setArType(e.target.value)}
                 >
                   <option value="">choose horse type</option>
-                  <option value="عربي">عربي</option>
-                  <option value="آخري">آخري</option>
+                  <option value="arabic">عربي</option>
+                  <option value="other">آخري</option>
+                  <option value="camel">جمال</option>
+                  <option value="vehicles">مركبات</option>
+                  <option value="carets">كريته</option>
                 </select>
 
                 <label>Type (English):</label>
@@ -325,8 +328,11 @@ const Horse = () => {
                   onChange={(e) => setEnType(e.target.value)}
                 >
                   <option value="">choose horse type</option>
-                  <option value="Arabic">Arabic</option>
-                  <option value="Other">Other</option>
+                  <option value="arabic">Arabic</option>
+                  <option value="other">Other</option>
+                  <option value="camel">Camel</option>
+                  <option value="vehicles">Vehicles</option>
+                  <option value="carets">Carets</option>
                 </select>
 
                 <label>Main Feature (Arabic):</label>

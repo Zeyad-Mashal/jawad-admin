@@ -186,14 +186,16 @@ td {
 .update_form input {
   width: 100%;
 }
-.completed_flex {
+.completed_flex,
+.completed_flex select {
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 1rem;
 }
-.completed_flex input {
+.completed_flex input,
+.completed_flex select {
   padding: 10px;
   border-radius: 10px;
   border: #007bff 1px solid;
