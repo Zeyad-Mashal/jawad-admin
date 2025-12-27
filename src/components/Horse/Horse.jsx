@@ -21,6 +21,7 @@ const Horse = () => {
   // Horse fields
   const [arName, setArName] = useState("");
   const [enName, setEnName] = useState("");
+  const [videoURL, setVideoURL] = useState("");
   const [arDescription, setArDescription] = useState("");
   const [enDescription, setEnDescription] = useState("");
   const [arGender, setArGender] = useState("");
@@ -60,6 +61,8 @@ const Horse = () => {
     GetHorse(setloading, setError, setAllHorses, stableId);
   };
 
+  console.log(selectedHorse?._id);
+
   const handleImageChange = (e, index) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -96,6 +99,7 @@ const Horse = () => {
     data.append("arFeature", arFeature);
     data.append("enFeature", enFeature);
     data.append("color", color);
+    data.append("videoUrl", videoURL);
     AddHorse(setloading, setError, data, getAllHorses, stableId, setAddModel);
   };
 
@@ -220,6 +224,14 @@ const Horse = () => {
                   )}
                 </div>
 
+                {/* Text Inputs */}
+                <label>Horse Video :</label>
+                <input
+                  type="text"
+                  placeholder="e.g. https://..."
+                  value={videoURL}
+                  onChange={(e) => setVideoURL(e.target.value)}
+                />
                 {/* Text Inputs */}
                 <label>Horse Name (Arabic):</label>
                 <input

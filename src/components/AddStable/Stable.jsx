@@ -7,7 +7,7 @@ import UpdateStable from "../../API/AddStable/UpdateStable";
 import DeleteStable from "../../API/AddStable/DeleteStable";
 import Disable from "../../API/AddStable/Disable";
 import { Link } from "react-router-dom";
-
+import StablePercentage from "../../API/AddStable/StablePercentage";
 const Stable = () => {
   useEffect(() => {
     getAllStables();
@@ -49,6 +49,9 @@ const Stable = () => {
   const [DeleteStableId, setDeleteStableId] = useState(null);
   const [deleteModel, setDeleteModel] = useState("");
   const [stableId, setStableId] = useState(null);
+  const [percentageModel, setPercentageModel] = useState(false);
+  const [percentageValue, setPercentageValue] = useState("");
+  const [percentageStableId, setPercentageStableId] = useState(null);
 
   // kept from your code (multi-select for a separate stable-type list used in Complete modal)
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -219,6 +222,32 @@ const Stable = () => {
     Disable(setloading, setError, stableId, getAllStables, setModel);
   };
 
+  const addStablePercentage = () => {
+    if (!percentageValue.trim()) {
+      setError("please enter the percentage");
+      return;
+    }
+    const data = {
+      profitPercentage: percentageValue,
+    };
+
+    StablePercentage(
+      setloading,
+      setError,
+      data,
+      percentageStableId,
+      setPercentageModel,
+      getAllStables
+    );
+  };
+
+  const openPercentageModal = (stableId, currentPercentage = "") => {
+    setPercentageStableId(stableId);
+    setPercentageValue(currentPercentage || "");
+    setPercentageModel(true);
+    setError(null);
+  };
+
   return (
     <div className="stable">
       <div className="stable_container">
@@ -283,6 +312,7 @@ const Stable = () => {
                 <th>Phone</th>
                 <th>Email</th>
                 <th>completed</th>
+                <th>Percentage</th>
                 <th>Settings</th>
               </tr>
             </thead>
@@ -307,6 +337,41 @@ const Stable = () => {
                         Not Completed
                       </p>
                     )}
+                  </td>
+                  <td>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "8px",
+                        alignItems: "center",
+                      }}
+                    >
+                      {item.profitPercentage && (
+                        <span
+                          style={{
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                            color: "#007bff",
+                          }}
+                        >
+                          {item.profitPercentage}%
+                        </span>
+                      )}
+                      <button
+                        className="percentage_btn"
+                        onClick={() =>
+                          openPercentageModal(
+                            item._id,
+                            item.profitPercentage || item.percentage || ""
+                          )
+                        }
+                      >
+                        {item.profitPercentage || item.percentage
+                          ? "Update"
+                          : "Add Percentage"}
+                      </button>
+                    </div>
                   </td>
                   <td
                     onClick={() => {
@@ -438,6 +503,9 @@ const Stable = () => {
                       {enTypeStable.includes("vehicle")
                         ? "✔️ Vehicle"
                         : "Vehicle"}
+                    </option>
+                    <option value="carets">
+                      {enTypeStable.includes("carets") ? "✔️ carets" : "carets"}
                     </option>
                   </select>
                 </div>
@@ -657,6 +725,55 @@ const Stable = () => {
                   {loading ? "Deleting..." : "Delete"}
                 </button>
                 <button onClick={() => setDeleteModel(false)}>Close</button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ======= PERCENTAGE POPUP ======= */}
+        {percentageModel && (
+          <>
+            <div
+              className="settings_wrapper"
+              onClick={() => {
+                setPercentageModel(false);
+                setPercentageValue("");
+                setPercentageStableId(null);
+                setError(null);
+              }}
+            />
+            <div className="settings_popup">
+              <h3>Stable Percentage</h3>
+              <div className="update_form">
+                <input
+                  type="text"
+                  placeholder="Stable ID"
+                  value={percentageStableId || ""}
+                  disabled
+                  style={{ backgroundColor: "#f5f5f5", cursor: "not-allowed" }}
+                />
+                <input
+                  type="number"
+                  placeholder="Percentage"
+                  value={percentageValue}
+                  onChange={(e) => setPercentageValue(e.target.value)}
+                />
+                {error && <div className="form_error">{error}</div>}
+                <div className="settings_flex">
+                  <button onClick={addStablePercentage} disabled={loading}>
+                    {loading ? "Saving..." : percentageValue ? "Update" : "Add"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setPercentageModel(false);
+                      setPercentageValue("");
+                      setPercentageStableId(null);
+                      setError(null);
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           </>
