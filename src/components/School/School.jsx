@@ -5,6 +5,7 @@ import AddSchool from "../../API/School/AddSchool";
 import CompleteSchool from "../../API/School/CompleteSchool";
 import UpdateSchool from "../../API/School/UpdateSchool";
 import DeleteSchool from "../../API/School/DeleteSchool";
+import SchoolPercentage from "../../API/School/SchoolPercentage";
 const School = () => {
   const [loading, setloading] = useState(false);
   const [error, setError] = useState(null);
@@ -37,6 +38,9 @@ const School = () => {
   const [editSchoolData, setEditSchoolData] = useState(null);
   const [schoolForSettings, setSchoolForSettings] = useState(null);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [percentageModel, setPercentageModel] = useState(false);
+  const [percentageValue, setPercentageValue] = useState("");
+  const [percentageSchoolId, setPercentageSchoolId] = useState(null);
   useEffect(() => {
     getAllSchools();
   }, []);
@@ -46,7 +50,7 @@ const School = () => {
   };
 
   const handleShowPrices = (prices) => {
-    setSelectedPrices(prices);
+    setSelectedPrices(Array.isArray(prices) ? prices : []);
     setShowModal(true);
   };
 
@@ -165,6 +169,43 @@ const School = () => {
     );
   };
 
+  const addSchoolPercentage = () => {
+    if (!percentageValue.trim()) {
+      setError("please enter the percentage");
+      return;
+    }
+    const data = {
+      profitPercentage: percentageValue,
+    };
+
+    // Store in localStorage
+    localStorage.setItem(
+      `school_percentage_${percentageSchoolId}`,
+      percentageValue
+    );
+
+    SchoolPercentage(
+      setloading,
+      setError,
+      data,
+      percentageSchoolId,
+      setPercentageModel,
+      getAllSchools
+    );
+  };
+
+  const openPercentageModal = (schoolId, currentPercentage = "") => {
+    setPercentageSchoolId(schoolId);
+    // Check localStorage if currentPercentage is empty
+    const storedPercentage =
+      currentPercentage ||
+      localStorage.getItem(`school_percentage_${schoolId}`) ||
+      "";
+    setPercentageValue(storedPercentage);
+    setPercentageModel(true);
+    setError(null);
+  };
+
   return (
     <div className="stable">
       <div className="stable_container">
@@ -227,6 +268,7 @@ const School = () => {
                 <th>Address</th>
                 <th>Services</th>
                 <th>Comleted ?</th>
+                <th>Percentage</th>
                 <th>Settings</th>
               </tr>
             </thead>
@@ -265,7 +307,46 @@ const School = () => {
                       </p>
                     )}
                   </td>
-
+                  <td>
+                    <div className="percentage_cell_wrapper">
+                      {(item.profitPercentage ||
+                        item.percentage ||
+                        localStorage.getItem(
+                          `school_percentage_${item._id}`
+                        )) && (
+                        <div className="percentage_display">
+                          <span className="percentage_value">
+                            {item.profitPercentage ||
+                              item.percentage ||
+                              localStorage.getItem(
+                                `school_percentage_${item._id}`
+                              )}
+                            %
+                          </span>
+                        </div>
+                      )}
+                      <button
+                        className="percentage_btn"
+                        onClick={() =>
+                          openPercentageModal(
+                            item._id,
+                            item.profitPercentage ||
+                              item.percentage ||
+                              localStorage.getItem(
+                                `school_percentage_${item._id}`
+                              ) ||
+                              ""
+                          )
+                        }
+                      >
+                        {item.profitPercentage ||
+                        item.percentage ||
+                        localStorage.getItem(`school_percentage_${item._id}`)
+                          ? "Update"
+                          : "Add Percentage"}
+                      </button>
+                    </div>
+                  </td>
                   <td
                     onClick={() => {
                       setSettingsModel(true);
@@ -286,13 +367,26 @@ const School = () => {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>الخدمات والأسعار</h2>
-            <ul>
-              {selectedPrices.map((service, idx) => (
-                <li key={idx}>
-                  <strong>{service.name}</strong>: {service.cost} جنيه
-                </li>
-              ))}
-            </ul>
+            {selectedPrices && selectedPrices.length > 0 ? (
+              <ul>
+                {selectedPrices.map((service, idx) => (
+                  <li key={idx}>
+                    <strong>{service?.name || "N/A"}</strong>:{" "}
+                    {service?.cost || "N/A"} جنيه
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p
+                style={{
+                  textAlign: "center",
+                  color: "var(--text-secondary)",
+                  padding: "2rem",
+                }}
+              >
+                لا توجد خدمات متاحة
+              </p>
+            )}
             <button
               className="close-prices-btn"
               onClick={() => setShowModal(false)}
@@ -699,6 +793,99 @@ const School = () => {
               <button onClick={handleDeleteSchool}>
                 {loading ? "Deleting..." : "Delete School"}
               </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ======= PERCENTAGE POPUP ======= */}
+      {percentageModel && (
+        <>
+          <div
+            className="modal-overlay"
+            onClick={() => {
+              setPercentageModel(false);
+              setPercentageValue("");
+              setPercentageSchoolId(null);
+              setError(null);
+            }}
+          />
+          <div
+            className="percentage_modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="percentage_modal_header">
+              <h3>📊 School Percentage</h3>
+              <button
+                className="percentage_close_btn"
+                onClick={() => {
+                  setPercentageModel(false);
+                  setPercentageValue("");
+                  setPercentageSchoolId(null);
+                  setError(null);
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="percentage_modal_body">
+              <div className="percentage_info_card">
+                <div className="percentage_info_label">School ID</div>
+                <div className="percentage_info_value">
+                  {percentageSchoolId || "N/A"}
+                </div>
+              </div>
+              <div className="percentage_input_group">
+                <label htmlFor="percentage-input">Percentage (%)</label>
+                <div className="percentage_input_wrapper">
+                  <input
+                    id="percentage-input"
+                    type="number"
+                    placeholder="Enter percentage"
+                    value={percentageValue}
+                    onChange={(e) => setPercentageValue(e.target.value)}
+                    min="0"
+                    max="100"
+                    step="0.01"
+                  />
+                  <span className="percentage_symbol">%</span>
+                </div>
+                {percentageValue && (
+                  <div className="percentage_preview">
+                    Current Value: <strong>{percentageValue}%</strong>
+                  </div>
+                )}
+              </div>
+              {error && <div className="form_error">{error}</div>}
+              <div className="percentage_modal_actions">
+                <button
+                  className="percentage_save_btn"
+                  onClick={addSchoolPercentage}
+                  disabled={loading || !percentageValue.trim()}
+                >
+                  {loading ? (
+                    <>
+                      <span className="spinner"></span> Saving...
+                    </>
+                  ) : percentageValue ? (
+                    "✓ Update Percentage"
+                  ) : (
+                    "➕ Add Percentage"
+                  )}
+                </button>
+                <button
+                  className="percentage_cancel_btn"
+                  onClick={() => {
+                    setPercentageModel(false);
+                    setPercentageValue("");
+                    setPercentageSchoolId(null);
+                    setError(null);
+                  }}
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </>

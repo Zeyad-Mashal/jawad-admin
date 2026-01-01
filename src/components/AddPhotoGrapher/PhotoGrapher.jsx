@@ -3,6 +3,7 @@ import "./PhotoGrapher.css";
 import GetPhotoGraphers from "../../API/PhotoGraphers/GetPhotoGraphers";
 import AddPhotographer from "../../API/PhotoGraphers/AddPhotographer";
 import DeletePhotographer from "../../API/PhotoGraphers/DeletePhotographer";
+import PhotoPercentage from "../../API/PhotoGraphers/PhotoPercentage";
 const PhotoGrapher = () => {
   const [loading, setloading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,6 +17,9 @@ const PhotoGrapher = () => {
   const [phone, setPhone] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedPhotographerId, setSelectedPhotographerId] = useState(null);
+  const [percentageModel, setPercentageModel] = useState(false);
+  const [percentageValue, setPercentageValue] = useState("");
+  const [percentagePhotoId, setPercentagePhotoId] = useState(null);
 
   useEffect(() => {
     getAllPhotographers();
@@ -59,6 +63,37 @@ const PhotoGrapher = () => {
       setDeleteModalOpen,
       getAllPhotographers
     );
+  };
+
+  const addPhotoPercentage = () => {
+    if (!percentageValue.trim()) {
+      setError("please enter the percentage");
+      return;
+    }
+    const data = {
+      profitPercentage: percentageValue,
+    };
+
+    // Store in localStorage
+    localStorage.setItem(`photographer_percentage_${percentagePhotoId}`, percentageValue);
+
+    PhotoPercentage(
+      setloading,
+      setError,
+      data,
+      percentagePhotoId,
+      setPercentageModel,
+      getAllPhotographers
+    );
+  };
+
+  const openPercentageModal = (photoId, currentPercentage = "") => {
+    setPercentagePhotoId(photoId);
+    // Check localStorage if currentPercentage is empty
+    const storedPercentage = currentPercentage || localStorage.getItem(`photographer_percentage_${photoId}`) || "";
+    setPercentageValue(storedPercentage);
+    setPercentageModel(true);
+    setError(null);
   };
 
   return (
@@ -119,6 +154,7 @@ const PhotoGrapher = () => {
                 <th>City</th>
                 <th>Total Rating</th>
                 <th>Is Completed?</th>
+                <th>Percentage</th>
                 <th>Images</th>
                 <th>Delete</th>
               </tr>
@@ -131,6 +167,30 @@ const PhotoGrapher = () => {
                   <td>{item.city?.ar ? item.city?.ar : "_____"}</td>
                   <td>{item.totalRating}</td>
                   <td>{item.completed ? "Completed" : "Not Completed"}</td>
+                  <td>
+                    <div className="percentage_cell_wrapper">
+                      {(item.profitPercentage || item.percentage || localStorage.getItem(`photographer_percentage_${item._id}`)) && (
+                        <div className="percentage_display">
+                          <span className="percentage_value">
+                            {item.profitPercentage || item.percentage || localStorage.getItem(`photographer_percentage_${item._id}`)}%
+                          </span>
+                        </div>
+                      )}
+                      <button
+                        className="percentage_btn"
+                        onClick={() =>
+                          openPercentageModal(
+                            item._id,
+                            item.profitPercentage || item.percentage || localStorage.getItem(`photographer_percentage_${item._id}`) || ""
+                          )
+                        }
+                      >
+                        {item.profitPercentage || item.percentage || localStorage.getItem(`photographer_percentage_${item._id}`)
+                          ? "Update"
+                          : "Add Percentage"}
+                      </button>
+                    </div>
+                  </td>
                   <td>
                     <button
                       className="show-images-btn"
@@ -193,6 +253,94 @@ const PhotoGrapher = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* ======= PERCENTAGE POPUP ======= */}
+        {percentageModel && (
+          <>
+            <div
+              className="modal-overlay"
+              onClick={() => {
+                setPercentageModel(false);
+                setPercentageValue("");
+                setPercentagePhotoId(null);
+                setError(null);
+              }}
+            />
+            <div className="percentage_modal" onClick={(e) => e.stopPropagation()}>
+              <div className="percentage_modal_header">
+                <h3>📊 Photographer Percentage</h3>
+                <button
+                  className="percentage_close_btn"
+                  onClick={() => {
+                    setPercentageModel(false);
+                    setPercentageValue("");
+                    setPercentagePhotoId(null);
+                    setError(null);
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="percentage_modal_body">
+                <div className="percentage_info_card">
+                  <div className="percentage_info_label">Photographer ID</div>
+                  <div className="percentage_info_value">{percentagePhotoId || "N/A"}</div>
+                </div>
+                <div className="percentage_input_group">
+                  <label htmlFor="percentage-input">Percentage (%)</label>
+                  <div className="percentage_input_wrapper">
+                    <input
+                      id="percentage-input"
+                      type="number"
+                      placeholder="Enter percentage"
+                      value={percentageValue}
+                      onChange={(e) => setPercentageValue(e.target.value)}
+                      min="0"
+                      max="100"
+                      step="0.01"
+                    />
+                    <span className="percentage_symbol">%</span>
+                  </div>
+                  {percentageValue && (
+                    <div className="percentage_preview">
+                      Current Value: <strong>{percentageValue}%</strong>
+                    </div>
+                  )}
+                </div>
+                {error && <div className="form_error">{error}</div>}
+                <div className="percentage_modal_actions">
+                  <button
+                    className="percentage_save_btn"
+                    onClick={addPhotoPercentage}
+                    disabled={loading || !percentageValue.trim()}
+                  >
+                    {loading ? (
+                      <>
+                        <span className="spinner"></span> Saving...
+                      </>
+                    ) : percentageValue ? (
+                      "✓ Update Percentage"
+                    ) : (
+                      "➕ Add Percentage"
+                    )}
+                  </button>
+                  <button
+                    className="percentage_cancel_btn"
+                    onClick={() => {
+                      setPercentageModel(false);
+                      setPercentageValue("");
+                      setPercentagePhotoId(null);
+                      setError(null);
+                    }}
+                    disabled={loading}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

@@ -1,11 +1,11 @@
 const URL = "https://jawad-gbvq.onrender.com/api/v1/percentage/";
 
-const StablePercentage = async (setloading, setError, data, percentageStableId, setPercentageModel, getAllStables) => {
+const SchoolPercentage = async (setloading, setError, data, percentageSchoolId, setPercentageModel, getAllSchools) => {
     setloading(true)
     // const lang = localStorage.getItem("lang") || "ar"
     const token = localStorage.getItem("jawadToken")
     try {
-        const response = await fetch(`${URL}${percentageStableId}?type=stable`, {
+        const response = await fetch(`${URL}${percentageSchoolId}?type=school`, {
             method: 'PUT',
             headers: {
                 // "accept-language": `${lang}`,
@@ -20,7 +20,7 @@ const StablePercentage = async (setloading, setError, data, percentageStableId, 
         if (response.ok) {
             setloading(false);
             setPercentageModel(false);
-            getAllStables();
+            getAllSchools();
         } else {
             if (response.status == 401) {
                 setError(result.message)
@@ -45,4 +45,4 @@ const StablePercentage = async (setloading, setError, data, percentageStableId, 
 
     }
 }
-export default StablePercentage;
+export default SchoolPercentage;

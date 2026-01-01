@@ -1,3 +1,5 @@
-* {
-  font-family: sans-serif, Cairo;
+/* App-level styles */
+.app-container {
+  min-height: 100vh;
+  background: var(--bg-secondary);
 }

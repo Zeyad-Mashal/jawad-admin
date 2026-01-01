@@ -339,24 +339,13 @@ const Stable = () => {
                     )}
                   </td>
                   <td>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "8px",
-                        alignItems: "center",
-                      }}
-                    >
-                      {item.profitPercentage && (
-                        <span
-                          style={{
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                            color: "#007bff",
-                          }}
-                        >
-                          {item.profitPercentage}%
-                        </span>
+                    <div className="percentage_cell_wrapper">
+                      {(item.profitPercentage || item.percentage) && (
+                        <div className="percentage_display">
+                          <span className="percentage_value">
+                            {item.profitPercentage || item.percentage}%
+                          </span>
+                        </div>
                       )}
                       <button
                         className="percentage_btn"
@@ -742,36 +731,77 @@ const Stable = () => {
                 setError(null);
               }}
             />
-            <div className="settings_popup">
-              <h3>Stable Percentage</h3>
-              <div className="update_form">
-                <input
-                  type="text"
-                  placeholder="Stable ID"
-                  value={percentageStableId || ""}
-                  disabled
-                  style={{ backgroundColor: "#f5f5f5", cursor: "not-allowed" }}
-                />
-                <input
-                  type="number"
-                  placeholder="Percentage"
-                  value={percentageValue}
-                  onChange={(e) => setPercentageValue(e.target.value)}
-                />
+            <div className="percentage_modal">
+              <div className="percentage_modal_header">
+                <h3>📊 Stable Percentage</h3>
+                <button
+                  className="percentage_close_btn"
+                  onClick={() => {
+                    setPercentageModel(false);
+                    setPercentageValue("");
+                    setPercentageStableId(null);
+                    setError(null);
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="percentage_modal_body">
+                <div className="percentage_info_card">
+                  <div className="percentage_info_label">Stable ID</div>
+                  <div className="percentage_info_value">
+                    {percentageStableId || "N/A"}
+                  </div>
+                </div>
+                <div className="percentage_input_group">
+                  <label htmlFor="percentage-input">Percentage (%)</label>
+                  <div className="percentage_input_wrapper">
+                    <input
+                      id="percentage-input"
+                      type="number"
+                      placeholder="Enter percentage"
+                      value={percentageValue}
+                      onChange={(e) => setPercentageValue(e.target.value)}
+                      min="0"
+                      max="100"
+                      step="0.01"
+                    />
+                    <span className="percentage_symbol">%</span>
+                  </div>
+                  {percentageValue && (
+                    <div className="percentage_preview">
+                      Current Value: <strong>{percentageValue}%</strong>
+                    </div>
+                  )}
+                </div>
                 {error && <div className="form_error">{error}</div>}
-                <div className="settings_flex">
-                  <button onClick={addStablePercentage} disabled={loading}>
-                    {loading ? "Saving..." : percentageValue ? "Update" : "Add"}
+                <div className="percentage_modal_actions">
+                  <button
+                    className="percentage_save_btn"
+                    onClick={addStablePercentage}
+                    disabled={loading || !percentageValue.trim()}
+                  >
+                    {loading ? (
+                      <>
+                        <span className="spinner"></span> Saving...
+                      </>
+                    ) : percentageValue ? (
+                      "✓ Update Percentage"
+                    ) : (
+                      "➕ Add Percentage"
+                    )}
                   </button>
                   <button
+                    className="percentage_cancel_btn"
                     onClick={() => {
                       setPercentageModel(false);
                       setPercentageValue("");
                       setPercentageStableId(null);
                       setError(null);
                     }}
+                    disabled={loading}
                   >
-                    Close
+                    Cancel
                   </button>
                 </div>
               </div>
