@@ -11,6 +11,7 @@ import Navbar from "./components/Navbar/Navbar";
 import PhotoGrapher from "./components/AddPhotoGrapher/PhotoGrapher";
 import Horse from "./components/Horse/Horse";
 import School from "./components/School/School";
+import Coupons from "./components/Coupons/Coupons";
 
 function AppContent() {
   const token = localStorage.getItem("jawadToken");
@@ -24,6 +25,7 @@ function AppContent() {
         <Route path="/photo" element={token ? <PhotoGrapher /> : <Login />} />
         <Route path="/add-horse" element={token ? <Horse /> : <Login />} />
         <Route path="/school" element={token ? <School /> : <Login />} />
+        <Route path="/coupons" element={token ? <Coupons /> : <Login />} />
       </Routes>
     </>
   );

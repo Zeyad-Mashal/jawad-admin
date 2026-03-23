@@ -5,7 +5,8 @@ import AddSchool from "../../API/School/AddSchool";
 import CompleteSchool from "../../API/School/CompleteSchool";
 import UpdateSchool from "../../API/School/UpdateSchool";
 import DeleteSchool from "../../API/School/DeleteSchool";
-import SchoolPercentage from "../../API/School/SchoolPercentage";
+import CreateCoupon from "../../API/Coupon/CreateCoupon";
+import UpdateCoupon from "../../API/Coupon/UpdateCoupon";
 const School = () => {
   const [loading, setloading] = useState(false);
   const [error, setError] = useState(null);
@@ -39,7 +40,13 @@ const School = () => {
   const [schoolForSettings, setSchoolForSettings] = useState(null);
   const [deleteModal, setDeleteModal] = useState(false);
   const [percentageModel, setPercentageModel] = useState(false);
-  const [percentageValue, setPercentageValue] = useState("");
+  const [couponData, setCouponData] = useState({
+    coupon: "",
+    discount: "",
+    startingDate: "",
+    expiryDate: "",
+  });
+  const [selectedCouponId, setSelectedCouponId] = useState(null);
   const [percentageSchoolId, setPercentageSchoolId] = useState(null);
   useEffect(() => {
     getAllSchools();
@@ -169,41 +176,69 @@ const School = () => {
     );
   };
 
-  const addSchoolPercentage = () => {
-    if (!percentageValue.trim()) {
-      setError("please enter the percentage");
-      return;
-    }
-    const data = {
-      profitPercentage: percentageValue,
-    };
-
-    // Store in localStorage
-    localStorage.setItem(
-      `school_percentage_${percentageSchoolId}`,
-      percentageValue
-    );
-
-    SchoolPercentage(
-      setloading,
-      setError,
-      data,
-      percentageSchoolId,
-      setPercentageModel,
-      getAllSchools
-    );
+  const handleCouponFieldChange = (field, value) => {
+    setCouponData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const openPercentageModal = (schoolId, currentPercentage = "") => {
+  const addSchoolCoupon = () => {
+    if (
+      !couponData.coupon.trim() ||
+      !couponData.discount.toString().trim() ||
+      !couponData.startingDate ||
+      !couponData.expiryDate
+    ) {
+      setError("please fill all coupon fields");
+      return;
+    }
+
+    const payload = {
+      coupon: couponData.coupon,
+      discount: Number(couponData.discount),
+      startingDate: couponData.startingDate,
+      expiryDate: couponData.expiryDate,
+    };
+
+    const onSuccess = () => {
+      setPercentageModel(false);
+      setCouponData({ coupon: "", discount: "", startingDate: "", expiryDate: "" });
+      setSelectedCouponId(null);
+      setPercentageSchoolId(null);
+      getAllSchools();
+    };
+
+    if (selectedCouponId) {
+      UpdateCoupon(setloading, setError, selectedCouponId, payload, onSuccess);
+      return;
+    }
+
+    CreateCoupon(setloading, setError, "school", payload, onSuccess);
+  };
+
+  const openPercentageModal = (schoolId, couponInfo = {}) => {
     setPercentageSchoolId(schoolId);
-    // Check localStorage if currentPercentage is empty
-    const storedPercentage =
-      currentPercentage ||
-      localStorage.getItem(`school_percentage_${schoolId}`) ||
-      "";
-    setPercentageValue(storedPercentage);
+    setSelectedCouponId(couponInfo?._id || null);
+    setCouponData({
+      coupon: couponInfo?.coupon || "",
+      discount:
+        couponInfo?.discount === 0 || couponInfo?.discount
+          ? String(couponInfo.discount)
+          : "",
+      startingDate: couponInfo?.startingDate
+        ? String(couponInfo.startingDate).slice(0, 10)
+        : "",
+      expiryDate: couponInfo?.expiryDate
+        ? String(couponInfo.expiryDate).slice(0, 10)
+        : "",
+    });
     setPercentageModel(true);
     setError(null);
+  };
+
+  const extractCouponInfo = (item) => {
+    if (item?.coupon && typeof item.coupon === "object") return item.coupon;
+    if (item?.couponDetails && typeof item.couponDetails === "object") return item.couponDetails;
+    if (item?.couponData && typeof item.couponData === "object") return item.couponData;
+    return {};
   };
 
   return (
@@ -274,6 +309,10 @@ const School = () => {
             </thead>
             <tbody>
               {allSchools.map((item, index) => (
+                (() => {
+                  const couponInfo = extractCouponInfo(item);
+                  const couponLabel = couponInfo?.coupon || "";
+                  return (
                 <tr key={index}>
                   <td>
                     {item.picUrl ? (
@@ -309,41 +348,21 @@ const School = () => {
                   </td>
                   <td>
                     <div className="percentage_cell_wrapper">
-                      {(item.profitPercentage ||
-                        item.percentage ||
-                        localStorage.getItem(
-                          `school_percentage_${item._id}`
-                        )) && (
+                      {(couponLabel || couponInfo?.discount) && (
                         <div className="percentage_display">
                           <span className="percentage_value">
-                            {item.profitPercentage ||
-                              item.percentage ||
-                              localStorage.getItem(
-                                `school_percentage_${item._id}`
-                              )}
-                            %
+                            {couponLabel || "Coupon"}{" "}
+                            {couponInfo?.discount ? `(${couponInfo.discount}%)` : ""}
                           </span>
                         </div>
                       )}
                       <button
                         className="percentage_btn"
                         onClick={() =>
-                          openPercentageModal(
-                            item._id,
-                            item.profitPercentage ||
-                              item.percentage ||
-                              localStorage.getItem(
-                                `school_percentage_${item._id}`
-                              ) ||
-                              ""
-                          )
+                          openPercentageModal(item._id, couponInfo)
                         }
                       >
-                        {item.profitPercentage ||
-                        item.percentage ||
-                        localStorage.getItem(`school_percentage_${item._id}`)
-                          ? "Update"
-                          : "Add Percentage"}
+                        {couponInfo?._id ? "Update Coupon" : "Add Coupon"}
                       </button>
                     </div>
                   </td>
@@ -356,6 +375,8 @@ const School = () => {
                     ⚙️
                   </td>
                 </tr>
+                  );
+                })()
               ))}
             </tbody>
           </table>
@@ -805,7 +826,13 @@ const School = () => {
             className="modal-overlay"
             onClick={() => {
               setPercentageModel(false);
-              setPercentageValue("");
+              setCouponData({
+                coupon: "",
+                discount: "",
+                startingDate: "",
+                expiryDate: "",
+              });
+              setSelectedCouponId(null);
               setPercentageSchoolId(null);
               setError(null);
             }}
@@ -820,7 +847,13 @@ const School = () => {
                 className="percentage_close_btn"
                 onClick={() => {
                   setPercentageModel(false);
-                  setPercentageValue("");
+                  setCouponData({
+                    coupon: "",
+                    discount: "",
+                    startingDate: "",
+                    expiryDate: "",
+                  });
+                  setSelectedCouponId(null);
                   setPercentageSchoolId(null);
                   setError(null);
                 }}
@@ -836,23 +869,53 @@ const School = () => {
                 </div>
               </div>
               <div className="percentage_input_group">
-                <label htmlFor="percentage-input">Percentage (%)</label>
+                <label htmlFor="coupon-input">Coupon Code</label>
                 <div className="percentage_input_wrapper">
                   <input
-                    id="percentage-input"
+                    id="coupon-input"
+                    type="text"
+                    placeholder="Enter coupon code"
+                    value={couponData.coupon}
+                    onChange={(e) =>
+                      handleCouponFieldChange("coupon", e.target.value)
+                    }
+                  />
+                </div>
+                <div className="percentage_input_wrapper" style={{ marginTop: "10px" }}>
+                  <input
                     type="number"
-                    placeholder="Enter percentage"
-                    value={percentageValue}
-                    onChange={(e) => setPercentageValue(e.target.value)}
-                    min="0"
-                    max="100"
-                    step="0.01"
+                    placeholder="Discount (%)"
+                    value={couponData.discount}
+                    onChange={(e) =>
+                      handleCouponFieldChange("discount", e.target.value)
+                    }
                   />
                   <span className="percentage_symbol">%</span>
                 </div>
-                {percentageValue && (
+                <div className="percentage_input_wrapper" style={{ marginTop: "10px" }}>
+                  <input
+                    type="date"
+                    value={couponData.startingDate}
+                    onChange={(e) =>
+                      handleCouponFieldChange("startingDate", e.target.value)
+                    }
+                  />
+                </div>
+                <div className="percentage_input_wrapper" style={{ marginTop: "10px" }}>
+                  <input
+                    type="date"
+                    value={couponData.expiryDate}
+                    onChange={(e) =>
+                      handleCouponFieldChange("expiryDate", e.target.value)
+                    }
+                  />
+                </div>
+                {couponData.coupon && (
                   <div className="percentage_preview">
-                    Current Value: <strong>{percentageValue}%</strong>
+                    Current Coupon:{" "}
+                    <strong>
+                      {couponData.coupon} ({couponData.discount || 0}%)
+                    </strong>
                   </div>
                 )}
               </div>
@@ -860,24 +923,36 @@ const School = () => {
               <div className="percentage_modal_actions">
                 <button
                   className="percentage_save_btn"
-                  onClick={addSchoolPercentage}
-                  disabled={loading || !percentageValue.trim()}
+                  onClick={addSchoolCoupon}
+                  disabled={
+                    loading ||
+                    !couponData.coupon.trim() ||
+                    !couponData.discount.toString().trim() ||
+                    !couponData.startingDate ||
+                    !couponData.expiryDate
+                  }
                 >
                   {loading ? (
                     <>
                       <span className="spinner"></span> Saving...
                     </>
-                  ) : percentageValue ? (
-                    "✓ Update Percentage"
+                  ) : selectedCouponId ? (
+                    "✓ Update Coupon"
                   ) : (
-                    "➕ Add Percentage"
+                    "➕ Add Coupon"
                   )}
                 </button>
                 <button
                   className="percentage_cancel_btn"
                   onClick={() => {
                     setPercentageModel(false);
-                    setPercentageValue("");
+                    setCouponData({
+                      coupon: "",
+                      discount: "",
+                      startingDate: "",
+                      expiryDate: "",
+                    });
+                    setSelectedCouponId(null);
                     setPercentageSchoolId(null);
                     setError(null);
                   }}

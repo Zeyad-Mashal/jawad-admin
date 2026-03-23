@@ -7,7 +7,8 @@ import UpdateStable from "../../API/AddStable/UpdateStable";
 import DeleteStable from "../../API/AddStable/DeleteStable";
 import Disable from "../../API/AddStable/Disable";
 import { Link } from "react-router-dom";
-import StablePercentage from "../../API/AddStable/StablePercentage";
+import CreateCoupon from "../../API/Coupon/CreateCoupon";
+import UpdateCoupon from "../../API/Coupon/UpdateCoupon";
 const Stable = () => {
   useEffect(() => {
     getAllStables();
@@ -50,7 +51,13 @@ const Stable = () => {
   const [deleteModel, setDeleteModel] = useState("");
   const [stableId, setStableId] = useState(null);
   const [percentageModel, setPercentageModel] = useState(false);
-  const [percentageValue, setPercentageValue] = useState("");
+  const [couponData, setCouponData] = useState({
+    coupon: "",
+    discount: "",
+    startingDate: "",
+    expiryDate: "",
+  });
+  const [selectedCouponId, setSelectedCouponId] = useState(null);
   const [percentageStableId, setPercentageStableId] = useState(null);
 
   // kept from your code (multi-select for a separate stable-type list used in Complete modal)
@@ -222,30 +229,69 @@ const Stable = () => {
     Disable(setloading, setError, stableId, getAllStables, setModel);
   };
 
-  const addStablePercentage = () => {
-    if (!percentageValue.trim()) {
-      setError("please enter the percentage");
-      return;
-    }
-    const data = {
-      profitPercentage: percentageValue,
-    };
-
-    StablePercentage(
-      setloading,
-      setError,
-      data,
-      percentageStableId,
-      setPercentageModel,
-      getAllStables
-    );
+  const handleCouponFieldChange = (field, value) => {
+    setCouponData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const openPercentageModal = (stableId, currentPercentage = "") => {
+  const addStableCoupon = () => {
+    if (
+      !couponData.coupon.trim() ||
+      !couponData.discount.toString().trim() ||
+      !couponData.startingDate ||
+      !couponData.expiryDate
+    ) {
+      setError("please fill all coupon fields");
+      return;
+    }
+
+    const payload = {
+      coupon: couponData.coupon,
+      discount: Number(couponData.discount),
+      startingDate: couponData.startingDate,
+      expiryDate: couponData.expiryDate,
+    };
+
+    const onSuccess = () => {
+      setPercentageModel(false);
+      setCouponData({ coupon: "", discount: "", startingDate: "", expiryDate: "" });
+      setSelectedCouponId(null);
+      setPercentageStableId(null);
+      getAllStables();
+    };
+
+    if (selectedCouponId) {
+      UpdateCoupon(setloading, setError, selectedCouponId, payload, onSuccess);
+      return;
+    }
+
+    CreateCoupon(setloading, setError, "stable", payload, onSuccess);
+  };
+
+  const openPercentageModal = (stableId, couponInfo = {}) => {
     setPercentageStableId(stableId);
-    setPercentageValue(currentPercentage || "");
+    setSelectedCouponId(couponInfo?._id || null);
+    setCouponData({
+      coupon: couponInfo?.coupon || "",
+      discount:
+        couponInfo?.discount === 0 || couponInfo?.discount
+          ? String(couponInfo.discount)
+          : "",
+      startingDate: couponInfo?.startingDate
+        ? String(couponInfo.startingDate).slice(0, 10)
+        : "",
+      expiryDate: couponInfo?.expiryDate
+        ? String(couponInfo.expiryDate).slice(0, 10)
+        : "",
+    });
     setPercentageModel(true);
     setError(null);
+  };
+
+  const extractCouponInfo = (item) => {
+    if (item?.coupon && typeof item.coupon === "object") return item.coupon;
+    if (item?.couponDetails && typeof item.couponDetails === "object") return item.couponDetails;
+    if (item?.couponData && typeof item.couponData === "object") return item.couponData;
+    return {};
   };
 
   return (
@@ -318,6 +364,10 @@ const Stable = () => {
             </thead>
             <tbody>
               {allStables.map((item, index) => (
+                (() => {
+                  const couponInfo = extractCouponInfo(item);
+                  const couponLabel = couponInfo?.coupon || "";
+                  return (
                 <tr key={index}>
                   <td>{item.name?.ar}</td>
                   <td>{item.name?.en}</td>
@@ -340,25 +390,21 @@ const Stable = () => {
                   </td>
                   <td>
                     <div className="percentage_cell_wrapper">
-                      {(item.profitPercentage || item.percentage) && (
+                      {(couponLabel || couponInfo?.discount) && (
                         <div className="percentage_display">
                           <span className="percentage_value">
-                            {item.profitPercentage || item.percentage}%
+                            {couponLabel || "Coupon"}{" "}
+                            {couponInfo?.discount ? `(${couponInfo.discount}%)` : ""}
                           </span>
                         </div>
                       )}
                       <button
                         className="percentage_btn"
                         onClick={() =>
-                          openPercentageModal(
-                            item._id,
-                            item.profitPercentage || item.percentage || ""
-                          )
+                          openPercentageModal(item._id, couponInfo)
                         }
                       >
-                        {item.profitPercentage || item.percentage
-                          ? "Update"
-                          : "Add Percentage"}
+                        {couponInfo?._id ? "Update Coupon" : "Add Coupon"}
                       </button>
                     </div>
                   </td>
@@ -372,6 +418,8 @@ const Stable = () => {
                     ⚙️
                   </td>
                 </tr>
+                  );
+                })()
               ))}
             </tbody>
           </table>
@@ -726,7 +774,13 @@ const Stable = () => {
               className="settings_wrapper"
               onClick={() => {
                 setPercentageModel(false);
-                setPercentageValue("");
+                setCouponData({
+                  coupon: "",
+                  discount: "",
+                  startingDate: "",
+                  expiryDate: "",
+                });
+                setSelectedCouponId(null);
                 setPercentageStableId(null);
                 setError(null);
               }}
@@ -738,7 +792,13 @@ const Stable = () => {
                   className="percentage_close_btn"
                   onClick={() => {
                     setPercentageModel(false);
-                    setPercentageValue("");
+                    setCouponData({
+                      coupon: "",
+                      discount: "",
+                      startingDate: "",
+                      expiryDate: "",
+                    });
+                    setSelectedCouponId(null);
                     setPercentageStableId(null);
                     setError(null);
                   }}
@@ -754,23 +814,53 @@ const Stable = () => {
                   </div>
                 </div>
                 <div className="percentage_input_group">
-                  <label htmlFor="percentage-input">Percentage (%)</label>
+                  <label htmlFor="coupon-input">Coupon Code</label>
                   <div className="percentage_input_wrapper">
                     <input
-                      id="percentage-input"
+                      id="coupon-input"
+                      type="text"
+                      placeholder="Enter coupon code"
+                      value={couponData.coupon}
+                      onChange={(e) =>
+                        handleCouponFieldChange("coupon", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="percentage_input_wrapper" style={{ marginTop: "10px" }}>
+                    <input
                       type="number"
-                      placeholder="Enter percentage"
-                      value={percentageValue}
-                      onChange={(e) => setPercentageValue(e.target.value)}
-                      min="0"
-                      max="100"
-                      step="0.01"
+                      placeholder="Discount (%)"
+                      value={couponData.discount}
+                      onChange={(e) =>
+                        handleCouponFieldChange("discount", e.target.value)
+                      }
                     />
                     <span className="percentage_symbol">%</span>
                   </div>
-                  {percentageValue && (
+                  <div className="percentage_input_wrapper" style={{ marginTop: "10px" }}>
+                    <input
+                      type="date"
+                      value={couponData.startingDate}
+                      onChange={(e) =>
+                        handleCouponFieldChange("startingDate", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="percentage_input_wrapper" style={{ marginTop: "10px" }}>
+                    <input
+                      type="date"
+                      value={couponData.expiryDate}
+                      onChange={(e) =>
+                        handleCouponFieldChange("expiryDate", e.target.value)
+                      }
+                    />
+                  </div>
+                  {couponData.coupon && (
                     <div className="percentage_preview">
-                      Current Value: <strong>{percentageValue}%</strong>
+                      Current Coupon:{" "}
+                      <strong>
+                        {couponData.coupon} ({couponData.discount || 0}%)
+                      </strong>
                     </div>
                   )}
                 </div>
@@ -778,24 +868,36 @@ const Stable = () => {
                 <div className="percentage_modal_actions">
                   <button
                     className="percentage_save_btn"
-                    onClick={addStablePercentage}
-                    disabled={loading || !percentageValue.trim()}
+                    onClick={addStableCoupon}
+                    disabled={
+                      loading ||
+                      !couponData.coupon.trim() ||
+                      !couponData.discount.toString().trim() ||
+                      !couponData.startingDate ||
+                      !couponData.expiryDate
+                    }
                   >
                     {loading ? (
                       <>
                         <span className="spinner"></span> Saving...
                       </>
-                    ) : percentageValue ? (
-                      "✓ Update Percentage"
+                    ) : selectedCouponId ? (
+                      "✓ Update Coupon"
                     ) : (
-                      "➕ Add Percentage"
+                      "➕ Add Coupon"
                     )}
                   </button>
                   <button
                     className="percentage_cancel_btn"
                     onClick={() => {
                       setPercentageModel(false);
-                      setPercentageValue("");
+                      setCouponData({
+                        coupon: "",
+                        discount: "",
+                        startingDate: "",
+                        expiryDate: "",
+                      });
+                      setSelectedCouponId(null);
                       setPercentageStableId(null);
                       setError(null);
                     }}

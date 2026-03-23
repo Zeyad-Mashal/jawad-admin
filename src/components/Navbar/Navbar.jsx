@@ -18,6 +18,7 @@ const Navbar = () => {
           <Link to="/stable">stable</Link>
           <Link to="/photo">Photographer</Link>
           <Link to="/school">School</Link>
+          <Link to="/coupons">Coupons</Link>
         </div>
 
         <button className="menu_icon" onClick={() => setIsOpen(!isOpen)}>
