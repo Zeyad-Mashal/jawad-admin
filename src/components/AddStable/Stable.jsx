@@ -44,6 +44,8 @@ const Stable = () => {
   const [enAddress, setEnAddress] = useState("");
   const [location, setLocation] = useState("");
   const [sessionRate, setSessionRate] = useState("");
+  const [descAr, setDescAr] = useState("");
+  const [descEn, setDescEn] = useState("");
 
   const [editModel, setEditModel] = useState(false);
   const [editingStableId, setEditingStableId] = useState(null);
@@ -140,7 +142,9 @@ const Stable = () => {
       !arAddress.trim() ||
       !enAddress.trim() ||
       !location.trim() ||
-      !sessionRate.trim()
+      !sessionRate.trim() ||
+      !descAr.trim() ||
+      !descEn.trim()
     ) {
       setError("من فضلك املأ جميع الحقول");
       return;
@@ -156,6 +160,8 @@ const Stable = () => {
     data.append("enAddress", enAddress);
     data.append("location", location);
     data.append("sessionPercentage", sessionRate);
+    data.append("descAr", descAr);
+    data.append("descEn", descEn);
     arTypeStable.forEach((element) => {
       data.append("arVehicles[]", element);
     });
@@ -185,6 +191,8 @@ const Stable = () => {
     data.append("enAddress", enAddress);
     data.append("location", location);
     data.append("sessionPercentage", sessionRate);
+    data.append("descAr", descAr);
+    data.append("descEn", descEn);
     arTypeStable.forEach((element) => {
       data.append("arVehicles[]", element);
     });
@@ -381,6 +389,8 @@ const Stable = () => {
                         className="notcompleted"
                         onClick={() => {
                           setCompleteStableId(item._id);
+                          setDescAr("");
+                          setDescEn("");
                           setCompleteModel(true);
                         }}
                       >
@@ -450,6 +460,16 @@ const Stable = () => {
                       setEnAddress(selectedStable.address?.en || "");
                       setLocation(selectedStable.location || "");
                       setSessionRate(selectedStable.sessionPercentage || "");
+                      setDescAr(
+                        selectedStable.descAr ||
+                          selectedStable.description?.ar ||
+                          ""
+                      );
+                      setDescEn(
+                        selectedStable.descEn ||
+                          selectedStable.description?.en ||
+                          ""
+                      );
                       setPreviewImage(selectedStable.image);
                     }
                   }}
@@ -603,6 +623,20 @@ const Stable = () => {
                     onChange={(e) => setSessionRate(e.target.value)}
                   />
                 </div>
+                <div className="completed_flex stable_desc_row">
+                  <textarea
+                    placeholder="الوصف بالعربي"
+                    value={descAr}
+                    onChange={(e) => setDescAr(e.target.value)}
+                    rows={3}
+                  />
+                  <textarea
+                    placeholder="Description (EN)"
+                    value={descEn}
+                    onChange={(e) => setDescEn(e.target.value)}
+                    rows={3}
+                  />
+                </div>
                 {error}
                 <button onClick={completeStableData} disabled={loading}>
                   {loading ? "loading..." : "Complete Stable"}
@@ -736,6 +770,20 @@ const Stable = () => {
                     type="number"
                     value={sessionRate}
                     onChange={(e) => setSessionRate(e.target.value)}
+                  />
+                </div>
+                <div className="completed_flex stable_desc_row">
+                  <textarea
+                    placeholder="الوصف بالعربي"
+                    value={descAr}
+                    onChange={(e) => setDescAr(e.target.value)}
+                    rows={3}
+                  />
+                  <textarea
+                    placeholder="Description (EN)"
+                    value={descEn}
+                    onChange={(e) => setDescEn(e.target.value)}
+                    rows={3}
                   />
                 </div>
                 {error}

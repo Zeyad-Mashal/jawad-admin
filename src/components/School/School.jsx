@@ -109,7 +109,7 @@ const School = () => {
       data,
       selectedSchoolId,
       setCompletionModal,
-      getAllSchools
+      getAllSchools,
     );
   };
   const handleEditSchool = (school) => {
@@ -163,7 +163,7 @@ const School = () => {
       data,
       editSchoolData.id,
       setEditModal,
-      getAllSchools
+      getAllSchools,
     );
   };
   const handleDeleteSchool = () => {
@@ -172,7 +172,7 @@ const School = () => {
       setError,
       schoolForSettings._id,
       setDeleteModal,
-      getAllSchools
+      getAllSchools,
     );
   };
 
@@ -200,7 +200,12 @@ const School = () => {
 
     const onSuccess = () => {
       setPercentageModel(false);
-      setCouponData({ coupon: "", discount: "", startingDate: "", expiryDate: "" });
+      setCouponData({
+        coupon: "",
+        discount: "",
+        startingDate: "",
+        expiryDate: "",
+      });
       setSelectedCouponId(null);
       setPercentageSchoolId(null);
       getAllSchools();
@@ -236,8 +241,10 @@ const School = () => {
 
   const extractCouponInfo = (item) => {
     if (item?.coupon && typeof item.coupon === "object") return item.coupon;
-    if (item?.couponDetails && typeof item.couponDetails === "object") return item.couponDetails;
-    if (item?.couponData && typeof item.couponData === "object") return item.couponData;
+    if (item?.couponDetails && typeof item.couponDetails === "object")
+      return item.couponDetails;
+    if (item?.couponData && typeof item.couponData === "object")
+      return item.couponData;
     return {};
   };
 
@@ -308,76 +315,82 @@ const School = () => {
               </tr>
             </thead>
             <tbody>
-              {allSchools.map((item, index) => (
+              {allSchools.map((item, index) =>
                 (() => {
                   const couponInfo = extractCouponInfo(item);
                   const couponLabel = couponInfo?.coupon || "";
                   return (
-                <tr key={index}>
-                  <td>
-                    {item.picUrl ? (
-                      <img src={item.picUrl} alt="" className="school_image" />
-                    ) : (
-                      "no image yet"
-                    )}
-                  </td>
-                  <td>{item.name.ar}</td>
-                  <td>{item.name.en}</td>
-                  <td>{item.phone}</td>
-                  <td>{item.email}</td>
-                  <td>{item.city?.ar ? item.city?.ar : "____"}</td>
-                  <td>{item.region?.ar ? item.region?.ar : "____"}</td>
-                  <td>{item.address?.ar ? item.address?.ar : "____"}</td>
-                  <td>
-                    <button onClick={() => handleShowPrices(item.price)}>
-                      Show
-                    </button>
-                  </td>
-                  <td>
-                    {item.completed ? (
-                      <p className="completed">completed</p>
-                    ) : (
-                      <p
-                        className="notcompleted"
-                        onClick={() => handleOpenCompletionModal(item._id)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        not completed
-                      </p>
-                    )}
-                  </td>
-                  <td>
-                    <div className="percentage_cell_wrapper">
-                      {(couponLabel || couponInfo?.discount) && (
-                        <div className="percentage_display">
-                          <span className="percentage_value">
-                            {couponLabel || "Coupon"}{" "}
-                            {couponInfo?.discount ? `(${couponInfo.discount}%)` : ""}
-                          </span>
+                    <tr key={index}>
+                      <td>
+                        {item.picUrl ? (
+                          <img
+                            src={item.picUrl}
+                            alt=""
+                            className="school_image"
+                          />
+                        ) : (
+                          "no image yet"
+                        )}
+                      </td>
+                      <td>{item.name.ar}</td>
+                      <td>{item.name.en}</td>
+                      <td>{item.phone}</td>
+                      <td>{item.email}</td>
+                      <td>{item.city?.ar ? item.city?.ar : "____"}</td>
+                      <td>{item.region?.ar ? item.region?.ar : "____"}</td>
+                      <td>{item.address?.ar ? item.address?.ar : "____"}</td>
+                      <td>
+                        <button onClick={() => handleShowPrices(item.price)}>
+                          Show
+                        </button>
+                      </td>
+                      <td>
+                        {item.completed ? (
+                          <p className="completed">completed</p>
+                        ) : (
+                          <p
+                            className="notcompleted"
+                            onClick={() => handleOpenCompletionModal(item._id)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            not completed
+                          </p>
+                        )}
+                      </td>
+                      <td>
+                        <div className="percentage_cell_wrapper">
+                          {(couponLabel || couponInfo?.discount) && (
+                            <div className="percentage_display">
+                              <span className="percentage_value">
+                                {couponLabel || "Coupon"}{" "}
+                                {couponInfo?.discount
+                                  ? `(${couponInfo.discount}%)`
+                                  : ""}
+                              </span>
+                            </div>
+                          )}
+                          <button
+                            className="percentage_btn"
+                            onClick={() =>
+                              openPercentageModal(item._id, couponInfo)
+                            }
+                          >
+                            {couponInfo?._id ? "Update Coupon" : "Add Coupon"}
+                          </button>
                         </div>
-                      )}
-                      <button
-                        className="percentage_btn"
-                        onClick={() =>
-                          openPercentageModal(item._id, couponInfo)
-                        }
+                      </td>
+                      <td
+                        onClick={() => {
+                          setSettingsModel(true);
+                          setSchoolForSettings(item);
+                        }}
                       >
-                        {couponInfo?._id ? "Update Coupon" : "Add Coupon"}
-                      </button>
-                    </div>
-                  </td>
-                  <td
-                    onClick={() => {
-                      setSettingsModel(true);
-                      setSchoolForSettings(item);
-                    }}
-                  >
-                    ⚙️
-                  </td>
-                </tr>
+                        ⚙️
+                      </td>
+                    </tr>
                   );
-                })()
-              ))}
+                })(),
+              )}
             </tbody>
           </table>
         </div>
@@ -772,7 +785,7 @@ const School = () => {
                 <button
                   onClick={() => {
                     const newPrices = editSchoolData.prices.filter(
-                      (_, i) => i !== idx
+                      (_, i) => i !== idx,
                     );
                     setEditSchoolData({ ...editSchoolData, prices: newPrices });
                   }}
@@ -881,7 +894,10 @@ const School = () => {
                     }
                   />
                 </div>
-                <div className="percentage_input_wrapper" style={{ marginTop: "10px" }}>
+                <div
+                  className="percentage_input_wrapper"
+                  style={{ marginTop: "10px" }}
+                >
                   <input
                     type="number"
                     placeholder="Discount (%)"
@@ -892,7 +908,10 @@ const School = () => {
                   />
                   <span className="percentage_symbol">%</span>
                 </div>
-                <div className="percentage_input_wrapper" style={{ marginTop: "10px" }}>
+                <div
+                  className="percentage_input_wrapper"
+                  style={{ marginTop: "10px" }}
+                >
                   <input
                     type="date"
                     value={couponData.startingDate}
@@ -901,7 +920,10 @@ const School = () => {
                     }
                   />
                 </div>
-                <div className="percentage_input_wrapper" style={{ marginTop: "10px" }}>
+                <div
+                  className="percentage_input_wrapper"
+                  style={{ marginTop: "10px" }}
+                >
                   <input
                     type="date"
                     value={couponData.expiryDate}

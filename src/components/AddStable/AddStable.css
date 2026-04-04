@@ -321,7 +321,8 @@ td {
 }
 
 .completed_flex input,
-.completed_flex select {
+.completed_flex select,
+.completed_flex textarea {
   padding: 0.875rem 1.25rem;
   border-radius: var(--radius-md);
   border: 2px solid var(--primary-color);
@@ -331,8 +332,21 @@ td {
   font-size: 1rem;
 }
 
+.completed_flex textarea {
+  flex: 1;
+  min-width: 0;
+  resize: vertical;
+  font-family: inherit;
+  align-self: stretch;
+}
+
+.stable_desc_row {
+  align-items: flex-start;
+}
+
 .completed_flex input:focus,
-.completed_flex select:focus {
+.completed_flex select:focus,
+.completed_flex textarea:focus {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
